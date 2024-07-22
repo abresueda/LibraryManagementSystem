@@ -28,6 +28,7 @@ public class BorrowingController {
         Borrowing savedBorrowing = borrowingService.save(borrowing);
         BookBorrowingResponse savedBorrowingResponse = modelMapper.map(savedBorrowing, BookBorrowingResponse.class);
         return new ResponseEntity<>(savedBorrowingResponse, HttpStatus.CREATED);
+
     }
 
     @GetMapping("/{id}")

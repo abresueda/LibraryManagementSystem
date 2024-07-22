@@ -25,7 +25,7 @@ public class BookManager implements IBookService {
 
     @Override
     public Book get(int id) {
-        return this.bookRepo.findById(id).orElseThrow(() -> new NotFoundException(Msg.NOT_FOUND));
+        return this.bookRepo.findById(id).orElseThrow(() -> new NotFoundException("Kitap Bulunamadı." + id));
     }
 
     @Override

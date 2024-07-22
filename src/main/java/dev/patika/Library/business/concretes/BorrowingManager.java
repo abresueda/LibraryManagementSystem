@@ -4,6 +4,7 @@ import dev.patika.Library.business.abstracts.IBookService;
 import dev.patika.Library.business.abstracts.IBorrowingService;
 import dev.patika.Library.core.exception.NotFoundException;
 import dev.patika.Library.core.ulties.Msg;
+import dev.patika.Library.dao.BookRepo;
 import dev.patika.Library.dao.BorrowingRepo;
 import dev.patika.Library.entities.Book;
 import dev.patika.Library.entities.Borrowing;
@@ -15,27 +16,29 @@ import org.springframework.stereotype.Service;
 @Service
 public class BorrowingManager implements IBorrowingService {
     private final BorrowingRepo borrowingRepo;
-    private final IBookService bookService;
+    private final BookRepo bookRepo;
 
-    public BorrowingManager(BorrowingRepo borrowingRepo, IBookService bookService) {
+    public BorrowingManager(BorrowingRepo borrowingRepo, BookRepo bookRepo) {
         this.borrowingRepo = borrowingRepo;
-        this.bookService = bookService;
+        this.bookRepo = bookRepo;
     }
 
     @Override
     public Borrowing save(Borrowing borrowing) {
-        Book book = bookService.get(borrowing.getBook().getId());
+        Book book = bookRepo.findById(borrowing.getBook().getId())
+                .orElseThrow(() -> new NotFoundException("Kitap Bulunamadı." + borrowing.getBook().getId()));
+
         if (book.getStock() <= 0) {
             throw new IllegalStateException("Yetersiz stok. Kitap ödünç verilemedi.");
         }
         book.setStock(book.getStock() - 1);
-        bookService.update(book);
+        bookRepo.save(book);
         return this.borrowingRepo.save(borrowing);
     }
 
     @Override
     public Borrowing get(int id) {
-        return this.borrowingRepo.findById(id).orElseThrow(() -> new NotFoundException(Msg.NOT_FOUND));
+        return this.borrowingRepo.findById(id).orElseThrow(() -> new NotFoundException("Ödünç alma işlemi bulunamadı." + id));
     }
 
     @Override
